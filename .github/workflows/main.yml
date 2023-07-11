@@ -1,0 +1,39 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Build FirstApp
+        if: ${{ contains(github.event.head_commit.modified, 'FirstApp') }}
+        run: |
+          cd FirstApp
+          docker build -t ghcr.io/Slancerk/first-app:${{ github.sha }} .
+          docker push ghcr.io/Slancerk/first-app:${{ github.sha }}
+
+      - name: Build SecondApp
+        if: ${{ contains(github.event.head_commit.modified, 'SecondApp') }}
+        run: |
+          cd SecondApp
+          docker build -t ghcr.io/Slancerk/second-app:${{ github.sha }} .
+          docker push ghcr.io/Slancerk/second-app:${{ github.sha }}
+
+      - name: Build Both Apps
+        if: ${{ contains(github.event.head_commit.modified, 'Modules') }}
+        run: |
+          cd FirstApp
+          docker build -t ghcr.io/Slancerk/first-app:${{ github.sha }} .
+          docker push ghcr.io/Slancerk/first-app:${{ github.sha }}
+
+          cd ../SecondApp
+          docker build -t ghcr.io/Slancerk/second-app:${{ github.sha }} .
+          docker push ghcr.io/Slancerk/second-app:${{ github.sha }}
